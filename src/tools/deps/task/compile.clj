@@ -57,7 +57,7 @@
         aoted? (.exists (io/file *target-dir*))]
     (javac dirs)
     (if aoted?
-      (println "Remove *target* directory if you want AOT forced")
+      (println "Remove" *target-dir*  "directory if you want AOT forced")
       (aot dirs)))
   (apply clojure.main/main args))
 

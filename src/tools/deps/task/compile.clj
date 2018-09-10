@@ -38,7 +38,7 @@
            (into-array String)
            (.run compiler nil nil nil))
       (println "********** compiled  **********\n"))
-    (let [loader (ClassLoader/getSystemClassLoader)
+    (let [loader (.getContextClassLoader (Thread/currentThread))
           method (.getDeclaredMethod
                   URLClassLoader "addURL"
                   (into-array Class [URL]))]
@@ -55,6 +55,10 @@
                     (map io/file)
                     (filter #(.isDirectory %)))
         aoted? (.exists (io/file *target-dir*))]
+    (when-not aoted?
+      (.setContextClassLoader
+       (Thread/currentThread)
+       (clojure.lang.RT/makeClassLoader)))
     (javac dirs)
     (if aoted?
       (println "Remove" *target-dir*  "directory if you want AOT forced")

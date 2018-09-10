@@ -3,8 +3,7 @@
            [java.net URL URLClassLoader])
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
-            [clojure.main]
-            [clojure.tools.namespace.find :as nsfind]))
+            [clojure.main]))
 
 
 (def ^:dynamic *target-dir* "target")
@@ -46,7 +45,10 @@
       (.invoke method loader (to-array [(io/as-url target)])))))
 
 (defn aot [dirs]
-  (let [nses (mapcat nsfind/find-namespaces-in-dir dirs)]
+  (require 'clojure.tools.namespace.find)
+  (let [f    (ns-resolve 'clojure.tools.namespace.find
+                         'find-namespaces-in-dir)
+        nses (mapcat f dirs)]
     (binding [*compile-path* *target-dir*]
       (run! compile nses))))
 

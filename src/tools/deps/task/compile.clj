@@ -65,5 +65,10 @@
     (if aoted?
       (println "Remove" *target-dir*  "directory if you want AOT forced")
       (aot dirs)))
-  (apply clojure.main/main args))
+  (if (and (= (first args) "-m")
+           (str/includes? (second args) "/"))
+    (let [[ns method] (map symbol (str/split (second args) #"/"))]
+      (require ns)
+      (apply (ns-resolve ns method) (drop 2 args)))
+    (apply clojure.main/main args)))
 

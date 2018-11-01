@@ -57,7 +57,7 @@
                     (map io/file)
                     (filter #(.isDirectory %)))
         aoted? (.exists (io/file *target-dir*))]
-    (when-not aoted?
+    (when-not false ;; aoted? temporary fix
       (.setContextClassLoader
        (Thread/currentThread)
        (clojure.lang.RT/makeClassLoader)))

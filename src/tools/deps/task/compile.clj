@@ -30,13 +30,10 @@
     (when-not (.exists target)
       (.mkdir target))
     (when-some [filenames (seq (map #(.getPath %) files))]
-      (println "********** compiling **********")
-      (run! println filenames)
       (->> filenames
            (concat ["-d" (.getPath target)])
            (into-array String)
-           (.run compiler nil nil nil))
-      (println "********** compiled  **********\n"))
+           (.run compiler nil nil nil)))
     (let [loader (.getContextClassLoader (Thread/currentThread))
           method (.getDeclaredMethod
                   URLClassLoader "addURL"
@@ -53,18 +50,15 @@
       (run! compile nses))))
 
 (defn -main [& args]
-  (let [dirs   (->> (str/split (System/getProperty "java.class.path") #":")
-                    (map io/file)
-                    (filter #(.isDirectory %)))
-        aoted? (.exists (io/file *target-dir*))]
-    (when-not false ;; aoted? temporary fix
-      (.setContextClassLoader
-       (Thread/currentThread)
-       (clojure.lang.RT/makeClassLoader)))
+  (let [dirs (->> (str/split (System/getProperty "java.class.path") #":")
+                  (map io/file)
+                  (filter #(.isDirectory %)))
+        aot? (not (.exists (io/file *target-dir*)))]
+    (.setContextClassLoader
+     (Thread/currentThread)
+     (clojure.lang.RT/makeClassLoader))
     (javac dirs)
-    (if aoted?
-      (println "Remove" *target-dir*  "directory if you want AOT forced")
-      (aot dirs)))
+    (when aot? (aot dirs)))
   (if (and (= (first args) "-m")
            (str/includes? (second args) "/"))
     (let [[ns method] (map symbol (str/split (second args) #"/"))]

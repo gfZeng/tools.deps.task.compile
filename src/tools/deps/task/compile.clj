@@ -6,7 +6,10 @@
             [clojure.main]))
 
 
-(def ^:dynamic *target-dir* "target")
+(def ^:dynamic *target-dir*
+  (or (System/getProperty "aot.target")
+      (System/getenv "AOT_TARGET")
+      "target"))
 
 
 (defn class-file-outdated? [dirname file]

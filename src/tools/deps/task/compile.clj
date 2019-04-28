@@ -48,7 +48,7 @@
   (require 'clojure.tools.namespace.find)
   (let [f    (ns-resolve 'clojure.tools.namespace.find
                          'find-namespaces-in-dir)
-        nses (mapcat f dirs)]
+        nses (remove #(:skip-aot? (meta %)) (mapcat f dirs))]
     (binding [*compile-path* *target-dir*]
       (run! compile nses))))
 
